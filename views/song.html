@@ -1,0 +1,14 @@
+<div class="banner swiper-container">
+    <div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="public/images/banner/banner.jpg" alt=""></div>
+        <div class="swiper-slide"><img src="public/images/banner/banner2.jpg" alt=""></div>
+        <div class="swiper-slide"><img src="public/images/banner/banner3.jpg" alt=""></div>
+        <div class="swiper-slide"><img src="public/images/banner/banner4.jpg" alt=""></div>
+    </div>
+</div>
+<div class="list">
+    <dl ng-repeat="i in list">
+        <dd class="dd">{{i.title}}</dd>
+        <dt class="dt"><img ng-src={{i.src}}></dt>
+    </dl>
+</div>
