@@ -7,8 +7,8 @@
     </div>
 </div>
 <div class="list">
-    <dl ng-repeat="i in list">
+    <dl ng-repeat="i in list | filter:txt">
         <dd class="dd">{{i.title}}</dd>
-        <dt class="dt"><img ng-src={{i.src}}></dt>
+        <dt class="dt"><img src="public/images/icon/download_icon_2.png"></dt>
     </dl>
 </div>

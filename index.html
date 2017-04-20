@@ -1,37 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="app">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <title></title>
+    <title>{{title}}</title>
     <link rel="stylesheet" href="public/css/swiper.min.css">
     <link rel="stylesheet" href="public/css/common.css">
     <link rel="stylesheet" href="public/css/reset.css">
     <link rel="stylesheet" href="public/css/style.css">
 </head>
-<body ng-app="app">
+<body>
 <header class="header">
     <img src="public/images/logo/logo.png" alt="">
     <span>下载酷狗</span>
-    <a href="#"><img src="public/images/logo/search.png" alt=""></a>
+    <a  ui-sref="search"><img src="public/images/logo/search.png" alt=""></a>
 </header>
 <nav class="nav">
     <ul>
-        <li ng-class="['on'][s]" ng-click="add('s')"><a href="#/song">新歌</a></li>
-        <li ng-class="['on'][r]" ng-click="add('r')"><a href="#/ranking">排行</a></li>
-        <li ng-class="['on'][l]" ng-click="add('l')"><a href="#/list">歌单</a></li>
-        <li ng-class="['on'][b]" ng-click="add('b')"><a href="#/bulbul">歌手</a></li>
+        <li ui-sref="song" ui-sref-active="on">新歌</li>
+        <li ui-sref="ranking" ui-sref-active="on">排行</li>
+        <li ui-sref="list" ui-sref-active="on">歌单</li>
+        <li ui-sref="bulbul" ui-sref-active="on">歌手</li>
     </ul>
 </nav>
 <section class="section">
-    <div ng-view></div>
+    <!--<div id="wrapper">
+        <div id="scroller">
+            <div id="pullDown">
+                <span class="pullDownLabel">下拉刷新</span>
+            </div>-->
+            <div ui-view></div>
+            <!--<div id="pullUp">
+                <span class="pullUpLabel">上拉加载</span>
+            </div>
+        </div>
+    </div>-->
+
 </section>
 <script type="text/javascript" src="public/js/swiper.min.js"></script>
+<script type="text/javascript" src="public/js/iscroll.js"></script>
 <script type="text/javascript" src="public/js/angular.js"></script>
-<script type="text/javascript" src="public/js/angular-route.js"></script>
+<script type="text/javascript" src="public/js/angular-ui-router.min.js"></script>
 <script type="text/javascript">
+    /*var myScroll,pullDown,pullUp,pullUpOffset,spanDown,spanUp;
+    // 下拉刷新上拉加载
+    pullUp=document.getElementById("pullUp");
+    pullDown=document.getElementById("pullDown");
+    pullUpOffset=pullUp.offsetHeight;
+    spanDown=pullDown.querySelector(".pullDownLabel");
+    spanUp=pullUp.querySelector(".pullUpLabel");
+    myScroll=new iScroll("wrapper",{
+        useTransition:true,
+        topOffset:pullUpOffset,
+        scrollbars:true,
+        mouseWheel:true,
+        onScrollMove:function(){
+            if(this.y>10&&!pullDown.className.match("flip")){
+                pullDown.className="flip";
+                spanDown.innerHTML="释放刷新";
+                this.minScrollY=0;
+            }else if(this.y<10&&pullDown.className.match("flip")){
+                pullDown.className="";
+                spanDown.innerHTML="下拉刷新";
+            }else if(this.y<(this.maxScrollY-10)&&!pullUp.className.match("flip")){
+                pullUp.className="flip";
+                spanUp.innerHTML="释放加载";
+                this.maxScrollY=this.maxScrollY;
+            }else if(this.y>(this.maxScrollY+10)&&pullUp.className.match("flip")){
+                pullUp.className="";
+                spanUp.innerHTML="上拉加载";
+                this.maxScrollY=pullUpOffset;
+            }
+        },
+        onScrollEnd:function(){
+            if(pullDown.className.match("flip")){
+                pullDown.className="loading";
+                spanDown.innerHTML="正在加载...";
+                pullDownAction();
+            }else if(pullUp.className.match("flip")){
+                pullUp.className="loading";
+                spanUp.innerHTML="正在加载...";
+                loadAction();
+            }
+        },
+        onRefresh:function(){
+            if(pullDown.className.match("loading")){
+                pullDown.className="";
+                spanDown.innerHTML="下拉刷新";
+            }else if(pullUp.className.match("loading")){
+                pullUp.className="";
+                spanUp.innerHTML="上拉加载";
+            }
+        }
+    });
+    loadAction();
+    function pullDownAction(){
+        setTimeout(function(){
+            alert("刷新成功");
+            myScroll.refresh();
+        },400);
+    };
+    function loadAction(){
+        setTimeout(function(){
+            //ajax();
+            myScroll.refresh();
+        },400);
 
-    var app=angular.module("app",["ngRoute"]);
+    };*/
+    var app=angular.module("app",["ui.router"]);
     function all($http,$q,url){
         var dfd=$q.defer();
             $http.get(url)
@@ -41,29 +117,26 @@
         return dfd.promise;
     }
     app.run(function($rootScope){
-        $rootScope.add=function(param){
-            $rootScope[param]=0;
-            var nav=document.querySelector(".nav");
-            var lis=nav.getElementsByTagName("li");
-            for(var i=0;i<lis.length;i++){
-                //if(lis[i].className){
-                    lis[i].classList.remove('on');
-                //}else{
-                    //lis[i].classList.add('on');
-                //}
-
-            }
-        }
-    })
-    app.config(function($routeProvider){
-        $routeProvider
-                .when("/song",{
+        $rootScope.$on("$stateChangeStart",function(event,next,nextParam,prev,prevParam){
+            $rootScope.title=next.title;
+        })
+    });
+    app.config(function($stateProvider,$urlRouterProvider){
+        $urlRouterProvider.otherwise("/song");//重定向
+        $stateProvider
+                .state({
+                    name:"song",
+                    url:"/song?param",
+                    title:"新歌",
                     templateUrl:"views/song.html",
-                    controller:function($scope,prepare){
-                        $scope.list=prepare;
+                    controller:function($scope,prepare,$stateParams){
                         new Swiper(".banner",{
                             autoplay:1000
                         });
+                        $scope.list=prepare;
+                        if($stateParams.param){
+                            $scope.txt=$stateParams.param;
+                        }
                     },
                     resolve:{
                         prepare:function($http,$q){
@@ -71,7 +144,10 @@
                         }
                     }
                 })
-                .when("/ranking",{
+                .state({
+                    name:"ranking",
+                    url:"/ranking",
+                    title:"排行",
                     templateUrl:"views/ranking.html",
                     controller:function($scope,prepare){
                         $scope.list1=prepare;
@@ -82,7 +158,10 @@
                         }
                     }
                 })
-                .when("/list",{
+                .state({
+                    name:"list",
+                    url:"/list",
+                    title:"歌单",
                     templateUrl:"views/list.html",
                     controller:function($scope,prepare){
                         $scope.list2=prepare;
@@ -93,7 +172,10 @@
                         }
                     }
                 })
-                .when("/bulbul",{
+                .state({
+                    name:"bulbul",
+                    url:"/bulbul",
+                    title:"歌手",
                     templateUrl:"views/bulbul.html",
                     controller:function($scope,prepare){
                         $scope.list3=prepare;
@@ -104,7 +186,18 @@
                         }
                     }
                 })
-                .otherwise("/song");
+                .state({
+                    name:"search",
+                    url:"/search",
+                    templateUrl:"views/search.html",
+                    controller:function($scope,$state,$rootScope){
+                        $scope.search=function(){
+                            if(!$scope.txt) $scope.txt="";
+                                $state.go("song",{param:$scope.txt});
+                        }
+
+                    }
+                })
     })
 </script>
 </body>
